@@ -1,5 +1,6 @@
 package ru.spbau.mit;
 
+/*
 import static org.junit.Assert.*;
 import org.junit.Test;
 
@@ -69,3 +70,5 @@ public class SerializableStringSetTest {
         throw new IllegalStateException("Error while class loading");
     }
 }
+
+*/

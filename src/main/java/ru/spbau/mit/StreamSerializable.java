@@ -1,5 +1,6 @@
 package ru.spbau.mit;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
@@ -7,11 +8,11 @@ public interface StreamSerializable {
     /**
      * @throws SerializationException in case of IOException during serialization
      */
-    void serialize(OutputStream out);
+    void serialize(OutputStream out) throws IOException;
 
     /**
      * Replace current state with data from input stream containing serialized data
      * @throws SerializationException in case of IOException during deserialization
      */
-    void deserialize(InputStream in);
+    void deserialize(InputStream in) throws IOException;
 }
