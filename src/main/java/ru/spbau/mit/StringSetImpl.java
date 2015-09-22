@@ -165,13 +165,15 @@ public class StringSetImpl implements StreamSerializable, StringSet {
             if (curVertex.termVertexLower > 1 && curVertex.links[element.charAt(i)].termVertexLower == 1) {
                 curVertex.termVertexLower--;
                 curVertex.links[element.charAt(i)] = null;
-                break;
+                return true;
             }
             else {
                 curVertex.termVertexLower--;
                 curVertex = curVertex.links[element.charAt(i)];
             }
         }
+        curVertex.termVertex = false;
+        curVertex.termVertexLower--;
         return true;
     }
 
