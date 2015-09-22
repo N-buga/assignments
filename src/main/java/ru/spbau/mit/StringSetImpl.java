@@ -121,6 +121,8 @@ public class StringSetImpl implements StreamSerializable, StringSet {
 
     @Override
     public boolean add(String element){
+        if (this.contains(element))
+            return false;
         Vertex currentVertex = vertexArrayList.get(0);
         currentVertex.termVertexLower++;
         int i;
@@ -137,9 +139,6 @@ public class StringSetImpl implements StreamSerializable, StringSet {
                 currentVertex.b = element.charAt(i);
                 currentVertex.termVertexLower++;
             }
-        }
-        if (currentVertex.termVertex) {
-            return false;
         }
         currentVertex.termVertex = true;
         return true;

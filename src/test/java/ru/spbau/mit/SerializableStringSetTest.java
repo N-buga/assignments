@@ -52,6 +52,16 @@ public class SerializableStringSetTest {
 
         assertFalse(newStringSet.contains("bcd"));
         assertFalse(newStringSet.size() == 3);
+
+        assertTrue(newStringSet.add("cd"));
+        assertTrue(newStringSet.add("bc"));
+        assertFalse(newStringSet.add("bcde"));
+        assertTrue(newStringSet.add("bcda"));
+
+        assertFalse(newStringSet.contains("bcd"));
+        assertTrue(newStringSet.contains("bc"));
+
+        assertTrue(newStringSet.howManyStartsWithPrefix("b") == 3);
     }
 
 
