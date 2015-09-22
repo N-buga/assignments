@@ -40,6 +40,9 @@ public class SerializableStringSetTest {
 
         assertFalse(newStringSet.contains("cd"));
         assertTrue(newStringSet.size() == 2);
+        assertTrue(newStringSet.howManyStartsWithPrefix("") == 2);
+
+        assertTrue(newStringSet.howManyStartsWithPrefix(" ") == 0);
     }
 
 
