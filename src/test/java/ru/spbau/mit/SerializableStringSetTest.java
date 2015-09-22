@@ -43,6 +43,14 @@ public class SerializableStringSetTest {
         assertTrue(newStringSet.howManyStartsWithPrefix("") == 2);
 
         assertTrue(newStringSet.howManyStartsWithPrefix(" ") == 0);
+
+        assertTrue(newStringSet.remove("cde"));
+
+        ByteArrayOutputStream outputStream2 = new ByteArrayOutputStream();
+        ((StreamSerializable) newStringSet).serialize(outputStream2);
+
+        assertFalse(newStringSet.contains("cde"));
+        assertFalse(newStringSet.size() == 3);
     }
 
 

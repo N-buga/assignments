@@ -22,7 +22,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
         }
     }
     @Override
-    public void serialize(OutputStream out) throws SerializationException{
+/*    public void serialize(OutputStream out) throws SerializationException{
         Vertex curVertex = vertexArrayList.get(0);
         char lastChar = 0;
         Vector<Vertex> vertexVector = new Vector<Vertex>();
@@ -55,22 +55,27 @@ public class StringSetImpl implements StreamSerializable, StringSet {
             }
             i++;
         }
-    }
-    /*   recursive     public void serialize(OutputStream out) throws IOException {
+    } */
+            public void serialize(OutputStream out) throws SerializationException {
                 Vertex curVertex = vertexArrayList.get(0);
                 String curString = new String();
+                curString = "";
                 goRoundTree(out, curVertex, curString);
             }
 
-            public void goRoundTree(OutputStream out, Vertex curVertex, String curString) throws IOException {
+            public void goRoundTree(OutputStream out, Vertex curVertex, String curString) throws SerializationException {
                 if (curVertex == null)
                     return;
-                if (curVertex.termVertex == true) {
+                if (curVertex.termVertex) {
                     int i;
-                    for (i = 0; i < curString.length(); i++) {
-                        out.write(curString.charAt(i));
+                    try {
+                        for (i = 0; i < curString.length(); i++) {
+                            out.write(curString.charAt(i));
+                        }
+                        out.write('\n');
+                    } catch (IOException e) {
+                        throw new SerializationException();
                     }
-                    out.write('\n');
                 }
                 int i;
                 for (i = 0; i < 256; i++) {
@@ -78,7 +83,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
                         goRoundTree(out, curVertex.links[i], curString + (char)i);
                 }
             }
-    */
+
     @Override
     public void deserialize(InputStream in) throws SerializationException{
         vertexArrayList = new ArrayList<Vertex>();
