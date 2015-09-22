@@ -1,12 +1,12 @@
 package ru.spbau.mit;
 
-import com.sun.xml.internal.ws.encoding.soap.SerializationException;
+//import com.sun.xml.internal.ws.encoding.soap.SerializationException;
 
 import java.util.*;
 import java.io.*;
 
 public class Main {
-    static class Vertex {
+ /*   static class Vertex {
         char b;
         int termVertexLower;
         boolean termVertex;
@@ -17,42 +17,43 @@ public class Main {
         }
     }
 
-    static class StringStorage implements StreamSerializable, StringSet {
+    static class StringSetImpl implements StreamSerializable, StringSet {
         @Override
-        public void serialize(OutputStream out) throws  IOException {
+        public void serialize(OutputStream out) {
             Vertex curVertex = vertexArrayList.get(0);
-            int countStringOut = 0;
             char lastChar = 0;
             Vector<Vertex> vertexVector = new Vector<Vertex>();
-//           while (countStringOut < curVertex.termVertexLower){
-                int i = 0;
-                while (curVertex != vertexArrayList.get(0) || i < 255) {
-                    if (i == 0 && curVertex.termVertex){ //the fist time we are in the vertex, write if it is a term vertex
-                        int j;
-                        countStringOut++;
+            int i = 0;
+            while (curVertex != vertexArrayList.get(0) || i < 255) {
+                if (i == 0 && curVertex.termVertex){ //the fist time we are in the vertex, write if it is a term vertex
+                    int j;
+                    try {
                         for (j = 1; j < vertexVector.size(); j++) {
                             out.write(vertexVector.get(j).b);
                         }
                         out.write(curVertex.b);
                         out.write('\n');
+                    } catch (IOException e) {
+                        System.out.print("Fail to write in file");
+                        return;
                     }
-                    if (i == 255 || (curVertex.termVertex && curVertex.termVertexLower == 1)){ //delete last element of deq, cause we walk around all subtree
-                        i = (char)((int)curVertex.b + 1);
-                        curVertex = vertexVector.get(vertexVector.size() - 1);
-                        vertexVector.remove(vertexVector.size() - 1);
-                        continue;
-                    }
-                    if (curVertex.links[(char) i] != null) {
-                        vertexVector.add(curVertex);
-                        curVertex = curVertex.links[(char)i];
-                        i = 0;
-                        continue;
-                    }
-                    i++;
                 }
-        //    }
+                if (i == 255 || (curVertex.termVertex && curVertex.termVertexLower == 1)){ //delete last element of deq, cause we walk around all subtree
+                    i = (char)((int)curVertex.b + 1);
+                    curVertex = vertexVector.get(vertexVector.size() - 1);
+                    vertexVector.remove(vertexVector.size() - 1);
+                    continue;
+                }
+                if (curVertex.links[(char) i] != null) {
+                    vertexVector.add(curVertex);
+                    curVertex = curVertex.links[(char)i];
+                    i = 0;
+                    continue;
+                }
+                i++;
+            }
         }
-/*        public void serialize(OutputStream out) throws IOException {
+/*   recursive     public void serialize(OutputStream out) throws IOException {
             Vertex curVertex = vertexArrayList.get(0);
             String curString = new String();
             goRoundTree(out, curVertex, curString);
@@ -74,29 +75,30 @@ public class Main {
                     goRoundTree(out, curVertex.links[i], curString + (char)i);
             }
         }
-*/
+*//*
         @Override
-        public void deserialize(InputStream in) throws IOException {
+        public void deserialize(InputStream in) {
             vertexArrayList = null;
             vertexArrayList = new ArrayList<Vertex>();
             vertexArrayList.add(new Vertex());
             char c = 0;
             while (c != 65535) {
                 String curString = "";
-                while ((c = (char) in.read()) != '\n' && c != 65535) {
-                    curString = curString + c;
+                try {
+                    while ((c = (char) in.read()) != '\n' && c != 65535) {
+                        curString = curString + c;
+                    }
+                } catch (IOException e) {
+                    System.out.print("Fail to read from file");
                 }
                 if (c == 65535)
                     break;
-//                System.out.print(curString);
-  //              System.out.print('%');
                 this.add(curString);
             }
-//            System.out.print('&');
         }
 
         ArrayList<Vertex> vertexArrayList = null;
-        StringStorage() {
+        StringSetImpl() {
             vertexArrayList = new ArrayList<Vertex>();
             vertexArrayList.add(new Vertex());
         }
@@ -174,7 +176,7 @@ public class Main {
             }
             return curVertex.termVertexLower;
         }
-    }
+    } */
     public static void main (String[ ] args) throws IOException {
 /*        StringStorage stringStorage = new StringStorage();
 
