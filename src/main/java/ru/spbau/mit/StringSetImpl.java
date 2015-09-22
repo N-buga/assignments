@@ -124,14 +124,12 @@ public class StringSetImpl implements StreamSerializable, StringSet {
         Vertex currentVertex = vertexArrayList.get(0);
         currentVertex.termVertexLower++;
         int i;
-        boolean ans = false;
         for (i = 0; i < element.length(); i++){
             if (currentVertex.links[(int)element.charAt(i)] != null) {
                 currentVertex = currentVertex.links[element.charAt(i)];
                 currentVertex.termVertexLower++;
             }
             else {
-                ans = true;
                 Vertex newVertex = new Vertex();
                 vertexArrayList.add(newVertex);
                 currentVertex.links[(int)element.charAt(i)] = newVertex;
@@ -140,8 +138,11 @@ public class StringSetImpl implements StreamSerializable, StringSet {
                 currentVertex.termVertexLower++;
             }
         }
+        if (currentVertex.termVertex) {
+            return false;
+        }
         currentVertex.termVertex = true;
-        return ans;
+        return true;
     }
 
     @Override

@@ -25,8 +25,8 @@ public class SerializableStringSetTest {
     public void testSimpleSerialization() {
         StringSet stringSet = instance();
 
-        assertTrue(stringSet.add("abc"));
-        assertTrue(stringSet.add("cde"));
+        assertTrue(stringSet.add("bcde"));
+        assertTrue(stringSet.add("bcd"));
 
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ((StreamSerializable) stringSet).serialize(outputStream);
@@ -35,8 +35,8 @@ public class SerializableStringSetTest {
         StringSet newStringSet = instance();
         ((StreamSerializable) newStringSet).deserialize(inputStream);
 
-        assertTrue(newStringSet.contains("abc"));
-        assertTrue(newStringSet.contains("cde"));
+        assertTrue(newStringSet.contains("bcde"));
+        assertTrue(newStringSet.contains("bcd"));
 
         assertFalse(newStringSet.contains("cd"));
         assertTrue(newStringSet.size() == 2);
@@ -44,12 +44,13 @@ public class SerializableStringSetTest {
 
         assertTrue(newStringSet.howManyStartsWithPrefix(" ") == 0);
 
-        assertTrue(newStringSet.remove("cde"));
+        assertTrue(newStringSet.remove("bcd"));
+        assertFalse(newStringSet.contains("bcd"));
 
         ByteArrayOutputStream outputStream2 = new ByteArrayOutputStream();
         ((StreamSerializable) newStringSet).serialize(outputStream2);
 
-        assertFalse(newStringSet.contains("cde"));
+        assertFalse(newStringSet.contains("bcd"));
         assertFalse(newStringSet.size() == 3);
     }
 
