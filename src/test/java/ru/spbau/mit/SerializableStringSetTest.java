@@ -37,6 +37,9 @@ public class SerializableStringSetTest {
 
         assertTrue(newStringSet.contains("abc"));
         assertTrue(newStringSet.contains("cde"));
+
+        assertFalse(newStringSet.contains("cd"));
+        assertTrue(newStringSet.size() == 2);
     }
 
 

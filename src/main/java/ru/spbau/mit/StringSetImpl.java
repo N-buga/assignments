@@ -142,7 +142,8 @@ public class StringSetImpl implements StreamSerializable, StringSet {
                 return false;
             curVertex = curVertex.links[element.charAt(i)];
         }
-        return true;
+        if (curVertex.termVertex == true) return true;
+        else return false;
     }
 
     @Override
