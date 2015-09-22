@@ -58,9 +58,14 @@ public class StringSetImpl implements StreamSerializable, StringSet {
     } */
             public void serialize(OutputStream out) throws SerializationException {
                 Vertex curVertex = vertexArrayList.get(0);
-                String curString = new String();
+                String curString;
                 curString = "";
                 goRoundTree(out, curVertex, curString);
+                try {
+                    out.write((char)9);
+                } catch (IOException e) {
+                    throw new SerializationException();
+                }
             }
 
             public void goRoundTree(OutputStream out, Vertex curVertex, String curString) throws SerializationException {
@@ -90,11 +95,11 @@ public class StringSetImpl implements StreamSerializable, StringSet {
         vertexArrayList.add(new Vertex());
         char c = 0;
         int i = 0;
-        while (i != -1) { //65535
+        while (i != 9) { //65535
             String curString = "";
             try {
                 i = in.read();
-                while ((c = (char)i) != '\n' && i != -1) {
+                while ((c = (char)i) != '\n' && i != 9) {
                     curString = curString + c;
                     i = in.read();
                 }
@@ -102,7 +107,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
                 System.out.print("Fail to read from file");
                 throw new SerializationException("deserialize");
             }
-            if (i == -1)
+            if (i == 9)
                 break;
             this.add(curString);
         }
