@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
-import java.util.Vector;
 
 /**
  * Created by n_buga on 22.09.15.
@@ -22,44 +21,9 @@ public class StringSetImpl implements StreamSerializable, StringSet {
         }
     }
     @Override
-/*    public void serialize(OutputStream out) throws SerializationException{
-        Vertex curVertex = vertexArrayList.get(0);
-        char lastChar = 0;
-        Vector<Vertex> vertexVector = new Vector<Vertex>();
-        int i = 0;
-        while (curVertex != vertexArrayList.get(0) || i < 255) {
-            if (i == 0 && curVertex.termVertex){ //the fist time we are in the vertex, write if it is a term vertex
-                int j;
-                try {
-                    for (j = 1; j < vertexVector.size(); j++) {
-                        out.write(vertexVector.get(j).b);
-                    }
-                    out.write(curVertex.b);
-                    out.write('\n');
-                } catch (IOException e) {
-                    System.out.print("Fail to write in file");
-                    throw new SerializationException("serialize");
-                }
-            }
-            if (i == 255 || (curVertex.termVertex && curVertex.termVertexLower == 1)){ //delete last element of Vector, cause we walk around all subtree
-                i = (char)((int)curVertex.b + 1);
-                curVertex = vertexVector.get(vertexVector.size() - 1);
-                vertexVector.remove(vertexVector.size() - 1);
-                continue;
-            }
-            if (curVertex.links[(char) i] != null) {
-                vertexVector.add(curVertex);
-                curVertex = curVertex.links[(char)i];
-                i = 0;
-                continue;
-            }
-            i++;
-        }
-    } */
             public void serialize(OutputStream out) throws SerializationException {
                 Vertex curVertex = vertexArrayList.get(0);
-                String curString;
-                curString = "";
+                StringBuilder curString = new StringBuilder("");
                 goRoundTree(out, curVertex, curString);
                 try {
                     out.write((char)9);
@@ -68,7 +32,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
                 }
             }
 
-            public void goRoundTree(OutputStream out, Vertex curVertex, String curString) throws SerializationException {
+            public void goRoundTree(OutputStream out, Vertex curVertex, StringBuilder curString) throws SerializationException {
                 if (curVertex == null)
                     return;
                 if (curVertex.termVertex) {
@@ -85,7 +49,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
                 int i;
                 for (i = 0; i < 256; i++) {
                     if (curVertex.links[i] != null)
-                        goRoundTree(out, curVertex.links[i], curString + (char)i);
+                        goRoundTree(out, curVertex.links[i], curString.append((char)i));
                 }
             }
 
