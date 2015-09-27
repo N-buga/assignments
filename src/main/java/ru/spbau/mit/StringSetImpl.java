@@ -23,8 +23,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
     @Override
     public void serialize(OutputStream out) throws SerializationException {
                 Vertex curVertex = vertexArrayList.get(0);
-                String curString;
-                curString = "";
+                StringBuilder curString = new StringBuilder();
                 goRoundTree(out, curVertex, curString);
                 try {
                     out.write((char)9);
@@ -33,7 +32,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
                 }
             }
 
-            public void goRoundTree(OutputStream out, Vertex curVertex, String curString) throws SerializationException {
+            public void goRoundTree(OutputStream out, Vertex curVertex, StringBuilder curString) throws SerializationException {
                 if (curVertex == null)
                     return;
                 if (curVertex.termVertex) {
@@ -49,8 +48,11 @@ public class StringSetImpl implements StreamSerializable, StringSet {
                 }
                 int i;
                 for (i = 0; i < 256; i++) {
-                    if (curVertex.links[i] != null)
-                        goRoundTree(out, curVertex.links[i], curString + (char)i);
+                    if (curVertex.links[i] != null) {
+                        curString.append((char)i);
+                        goRoundTree(out, curVertex.links[i], curString);
+                        curString.deleteCharAt(curString.length() - 1);
+                    }
                 }
             }
 
