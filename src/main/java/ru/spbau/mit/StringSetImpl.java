@@ -23,7 +23,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
     @Override
     public void serialize(OutputStream out) throws SerializationException {
                 Vertex curVertex = vertexArrayList.get(0);
-                StringBuilder curString = new StringBuilder("");
+                StringBuilder curString = new StringBuilder();
                 goRoundTree(out, curVertex, curString);
                 try {
                     out.write((char)9);
