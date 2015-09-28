@@ -21,7 +21,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
 
     @Override
     public void serialize(OutputStream out) throws SerializationException {
-        Vertex curVertex = vertexArrayList.get(0);
+        Vertex curVertex = vertexHead;
         StringBuilder curString = new StringBuilder();
         try {
             goRoundTree(out, curVertex, curString);
@@ -52,8 +52,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
 
     @Override
     public void deserialize(InputStream in) throws SerializationException{
-        vertexArrayList = new ArrayList<Vertex>();
-        vertexArrayList.add(new Vertex());
+        vertexHead = new Vertex();
         char c = 0;
         int i = 0;
         while (i != EndOfFile) { //65535
@@ -73,17 +72,13 @@ public class StringSetImpl implements StreamSerializable, StringSet {
         }
     }
 
-    ArrayList<Vertex> vertexArrayList = null;
-    StringSetImpl() {
-        vertexArrayList = new ArrayList<Vertex>();
-        vertexArrayList.add(new Vertex());
-    }
+    private Vertex vertexHead = new Vertex();
 
     @Override
     public boolean add(String element){
         if (this.contains(element))
             return false;
-        Vertex currentVertex = vertexArrayList.get(0);
+        Vertex currentVertex = vertexHead;
         currentVertex.termVertexLower++;
         for (int i = 0; i < element.length(); i++){
             if (currentVertex.links[(int)element.charAt(i)] != null) {
@@ -92,7 +87,6 @@ public class StringSetImpl implements StreamSerializable, StringSet {
             }
             else {
                 Vertex newVertex = new Vertex();
-                vertexArrayList.add(newVertex);
                 currentVertex.links[(int)element.charAt(i)] = newVertex;
                 currentVertex = currentVertex.links[element.charAt(i)];
                 currentVertex.b = element.charAt(i);
@@ -105,7 +99,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
 
     @Override
     public boolean contains(String element) {
-        Vertex curVertex = vertexArrayList.get(0);
+        Vertex curVertex = vertexHead;
         int i;
         for (i = 0; i < element.length(); i++) {
             if (curVertex.links[element.charAt(i)] == null)
@@ -119,7 +113,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
     public boolean remove(String element) {
         if (!this.contains(element))
             return false;
-        Vertex curVertex = vertexArrayList.get(0);
+        Vertex curVertex = vertexHead;
         for (int i = 0; i < element.length(); i++){
             if (curVertex.termVertexLower > 1 && curVertex.links[element.charAt(i)].termVertexLower == 1) {
                 curVertex.termVertexLower--;
@@ -138,13 +132,13 @@ public class StringSetImpl implements StreamSerializable, StringSet {
 
     @Override
     public int size() {
-        return vertexArrayList.get(0).termVertexLower;
+        return vertexHead.termVertexLower;
     }
 
     @Override
     public int howManyStartsWithPrefix(String prefix) {
         int i;
-        Vertex curVertex = vertexArrayList.get(0);
+        Vertex curVertex = vertexHead;
         for (i = 0; i < prefix.length(); i++) {
             if (curVertex.links[prefix.charAt(i)] == null)
                 return 0;
