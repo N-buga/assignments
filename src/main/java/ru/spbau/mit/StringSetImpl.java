@@ -10,51 +10,45 @@ import java.util.ArrayList;
  */
 
 public class StringSetImpl implements StreamSerializable, StringSet {
-    static private class Vertex {
-        char b;
-        int termVertexLower;
-        boolean termVertex;
-        Vertex[] links = new Vertex[256];
-        Vertex(){
-            termVertexLower = 0;
-            b = 0;
-        }
+    private static class Vertex {
+        private char b;
+        private int termVertexLower;
+        private boolean termVertex;
+        private Vertex[] links = new Vertex[256];
     }
+
+    private static final int EndOfFile = 9;
+
     @Override
     public void serialize(OutputStream out) throws SerializationException {
-                Vertex curVertex = vertexArrayList.get(0);
-                StringBuilder curString = new StringBuilder();
-                goRoundTree(out, curVertex, curString);
-                try {
-                    out.write((char)9);
-                } catch (IOException e) {
-                    throw new SerializationException();
-                }
-            }
+        Vertex curVertex = vertexArrayList.get(0);
+        StringBuilder curString = new StringBuilder();
+        try {
+            goRoundTree(out, curVertex, curString);
+            out.write((char) EndOfFile);
+        } catch (IOException e) {
+            throw new SerializationException();
+        }
+    }
 
-            public void goRoundTree(OutputStream out, Vertex curVertex, StringBuilder curString) throws SerializationException {
-                if (curVertex == null)
-                    return;
-                if (curVertex.termVertex) {
-                    int i;
-                    try {
-                        for (i = 0; i < curString.length(); i++) {
-                            out.write(curString.charAt(i));
-                        }
-                        out.write('\n');
-                    } catch (IOException e) {
-                        throw new SerializationException();
-                    }
-                }
-                int i;
-                for (i = 0; i < 256; i++) {
-                    if (curVertex.links[i] != null) {
-                        curString.append((char)i);
-                        goRoundTree(out, curVertex.links[i], curString);
-                        curString.deleteCharAt(curString.length() - 1);
-                    }
-                }
+    private void goRoundTree(OutputStream out, Vertex curVertex, StringBuilder curString) throws IOException {
+        if (curVertex == null)
+            return;
+        if (curVertex.termVertex) {
+            for (int i = 0; i < curString.length(); i++) {
+                out.write(curString.charAt(i));
             }
+            out.write('\n');
+        }
+        int i;
+        for (i = 0; i < 256; i++) {
+            if (curVertex.links[i] != null) {
+                curString.append((char)i);
+                goRoundTree(out, curVertex.links[i], curString);
+                curString.deleteCharAt(curString.length() - 1);
+            }
+        }
+    }
 
     @Override
     public void deserialize(InputStream in) throws SerializationException{
@@ -62,21 +56,20 @@ public class StringSetImpl implements StreamSerializable, StringSet {
         vertexArrayList.add(new Vertex());
         char c = 0;
         int i = 0;
-        while (i != 9) { //65535
-            String curString = "";
+        while (i != EndOfFile) { //65535
+            StringBuilder curString = new StringBuilder();
             try {
                 i = in.read();
-                while ((c = (char)i) != '\n' && i != 9) {
-                    curString = curString + c;
+                while ((c = (char)i) != '\n' && i != EndOfFile) {
+                    curString.append(c);
                     i = in.read();
                 }
             } catch (IOException e) {
-                System.out.print("Fail to read from file");
                 throw new SerializationException("deserialize");
             }
-            if (i == 9)
+            if (i == EndOfFile)
                 break;
-            this.add(curString);
+            add(curString.toString());
         }
     }
 
@@ -92,8 +85,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
             return false;
         Vertex currentVertex = vertexArrayList.get(0);
         currentVertex.termVertexLower++;
-        int i;
-        for (i = 0; i < element.length(); i++){
+        for (int i = 0; i < element.length(); i++){
             if (currentVertex.links[(int)element.charAt(i)] != null) {
                 currentVertex = currentVertex.links[element.charAt(i)];
                 currentVertex.termVertexLower++;
