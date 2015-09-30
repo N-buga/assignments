@@ -11,37 +11,40 @@ import java.util.ArrayList;
 
 public class StringSetImpl implements StreamSerializable, StringSet {
     private static class Vertex {
-        private char b;
         private int termVertexLower;
         private boolean termVertex;
         private Vertex[] links = new Vertex[256];
     }
 
-    private static final int EndOfFile = 9;
+    private static final int ENDOFFILE = 9;
 
     @Override
     public void serialize(OutputStream out) throws SerializationException {
-        Vertex curVertex = vertexHead;
-        StringBuilder curString = new StringBuilder();
         try {
-            goRoundTree(out, curVertex, curString);
-            out.write((char) EndOfFile);
+            doSerialize(out);
         } catch (IOException e) {
-            throw new SerializationException();
+            throw new SerializationException("serialize");
         }
     }
 
+    private void doSerialize(OutputStream out) throws IOException {
+        Vertex curVertex = vertexHead;
+        StringBuilder curString = new StringBuilder();
+        goRoundTree(out, curVertex, curString);
+        out.write((char) ENDOFFILE);
+    }
+
     private void goRoundTree(OutputStream out, Vertex curVertex, StringBuilder curString) throws IOException {
-        if (curVertex == null)
+        if (curVertex == null) {
             return;
+        }
         if (curVertex.termVertex) {
             for (int i = 0; i < curString.length(); i++) {
                 out.write(curString.charAt(i));
             }
             out.write('\n');
         }
-        int i;
-        for (i = 0; i < 256; i++) {
+        for (int i = 0; i < 256; i++) {
             if (curVertex.links[i] != null) {
                 curString.append((char)i);
                 goRoundTree(out, curVertex.links[i], curString);
@@ -52,22 +55,27 @@ public class StringSetImpl implements StreamSerializable, StringSet {
 
     @Override
     public void deserialize(InputStream in) throws SerializationException{
+        try {
+            doDeserialize(in);
+        } catch (IOException e) {
+            throw new SerializationException("deserialize");
+        }
+    }
+
+    private void doDeserialize(InputStream in) throws IOException {
         vertexHead = new Vertex();
         char c = 0;
         int i = 0;
-        while (i != EndOfFile) { //65535
+        while (i != ENDOFFILE) {
             StringBuilder curString = new StringBuilder();
-            try {
+            i = in.read();
+            while ((c = (char)i) != '\n' && i != ENDOFFILE) {
+                curString.append(c);
                 i = in.read();
-                while ((c = (char)i) != '\n' && i != EndOfFile) {
-                    curString.append(c);
-                    i = in.read();
-                }
-            } catch (IOException e) {
-                throw new SerializationException("deserialize");
             }
-            if (i == EndOfFile)
+            if (i == ENDOFFILE) {
                 break;
+            }
             add(curString.toString());
         }
     }
@@ -76,20 +84,20 @@ public class StringSetImpl implements StreamSerializable, StringSet {
 
     @Override
     public boolean add(String element){
-        if (this.contains(element))
+        if (this.contains(element)) {
             return false;
+        }
         Vertex currentVertex = vertexHead;
         currentVertex.termVertexLower++;
-        for (int i = 0; i < element.length(); i++){
-            if (currentVertex.links[(int)element.charAt(i)] != null) {
-                currentVertex = currentVertex.links[element.charAt(i)];
+        for (char c: element.toCharArray()){
+            if (currentVertex.links[(int)c] != null) {
+                currentVertex = currentVertex.links[c];
                 currentVertex.termVertexLower++;
             }
             else {
                 Vertex newVertex = new Vertex();
-                currentVertex.links[(int)element.charAt(i)] = newVertex;
-                currentVertex = currentVertex.links[element.charAt(i)];
-                currentVertex.b = element.charAt(i);
+                currentVertex.links[(int)c] = newVertex;
+                currentVertex = currentVertex.links[c];
                 currentVertex.termVertexLower++;
             }
         }
@@ -102,8 +110,9 @@ public class StringSetImpl implements StreamSerializable, StringSet {
         Vertex curVertex = vertexHead;
         int i;
         for (i = 0; i < element.length(); i++) {
-            if (curVertex.links[element.charAt(i)] == null)
+            if (curVertex.links[element.charAt(i)] == null) {
                 return false;
+            }
             curVertex = curVertex.links[element.charAt(i)];
         }
         return curVertex.termVertex;
@@ -111,8 +120,9 @@ public class StringSetImpl implements StreamSerializable, StringSet {
 
     @Override
     public boolean remove(String element) {
-        if (!this.contains(element))
+        if (!this.contains(element)) {
             return false;
+        }
         Vertex curVertex = vertexHead;
         for (int i = 0; i < element.length(); i++){
             if (curVertex.termVertexLower > 1 && curVertex.links[element.charAt(i)].termVertexLower == 1) {
@@ -140,8 +150,9 @@ public class StringSetImpl implements StreamSerializable, StringSet {
         int i;
         Vertex curVertex = vertexHead;
         for (i = 0; i < prefix.length(); i++) {
-            if (curVertex.links[prefix.charAt(i)] == null)
+            if (curVertex.links[prefix.charAt(i)] == null) {
                 return 0;
+            }
             curVertex = curVertex.links[prefix.charAt(i)];
         }
         return curVertex.termVertexLower;
