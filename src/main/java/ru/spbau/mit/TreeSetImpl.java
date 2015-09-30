@@ -1,9 +1,6 @@
 package ru.spbau.mit;
 
-import javafx.util.Pair;
-
 import java.util.*;
-import java.util.function.Consumer;
 
 
 public class TreeSetImpl<E> extends AbstractSet<E> {
