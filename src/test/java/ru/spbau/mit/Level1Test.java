@@ -80,8 +80,9 @@ public class Level1Test extends TestsBase {
 
         for (int i = 0; i < 100; i++) {
             int e = random.nextInt();
-            assertEquals(real.add(e), set.add(e));
-            assertEquals(new ArrayList<>(real), new ArrayList<>(set));
+            assertTrue(real.add(e) == set.add(e));
         }
+
+        assertEquals(new ArrayList<>(real), new ArrayList<>(set));
     }
 }

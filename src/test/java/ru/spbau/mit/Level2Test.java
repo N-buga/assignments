@@ -63,7 +63,7 @@ public class Level2Test extends TestsBase {
         Set<Integer> set = buildSet();
         Set<Integer> real = new HashSet<>();
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             int e = (i > 0 && random.nextBoolean())
                 ? new ArrayList<>(real).get(random.nextInt(real.size()))
                 : random.nextInt(123456);
@@ -88,7 +88,7 @@ public class Level2Test extends TestsBase {
         Set<Integer> testSet = buildSet();
         Set<Integer> realSet = new TreeSet<>();
 
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 10; i++) {
             int element = random.nextInt(123456);
             assertEquals(realSet.add(element), testSet.add(element));
         }
