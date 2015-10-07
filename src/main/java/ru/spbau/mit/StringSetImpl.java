@@ -115,9 +115,9 @@ public class StringSetImpl implements StreamSerializable, StringSet {
         }
         Vertex curVertex = vertexHead;
         for (char c: element.toCharArray()){
-            if (curVertex.links[c] == null) {
-                return 0;
-            }
+//            if (curVertex.links[c] == null) {
+  //              return 0;
+    //        }
             if (curVertex.countTermVertexLower > 1 && curVertex.links[c].countTermVertexLower == 1) {
                 if (function == "remove") {
                     curVertex.countTermVertexLower--;
@@ -133,12 +133,8 @@ public class StringSetImpl implements StreamSerializable, StringSet {
             }
         }
         if (function == "remove") {
-            if (curVertex.isVertex) {
-                curVertex.isVertex = false;
-                curVertex.countTermVertexLower--;
-            } else {
-                return 0;
-            }
+            curVertex.isVertex = false;
+            curVertex.countTermVertexLower--;
         }
         return curVertex.countTermVertexLower;
     }
@@ -152,11 +148,11 @@ public class StringSetImpl implements StreamSerializable, StringSet {
         }
     }
 
-    @Override
+/*    @Override
     public int howManyStartsWithPrefix(String prefix) {
         return helperRemove_Prefix(prefix, "howManyStartsWithPrefix");
     }
-
+*/
 /*    @Override
     public boolean remove(String element) {
         if (!contains(element)) {
@@ -183,7 +179,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
     public int size() {
         return vertexHead.countTermVertexLower;
     }
-/*    @Override
+    @Override
     public int howManyStartsWithPrefix(String prefix) {
         Vertex curVertex = vertexHead;
         for (char c: prefix.toCharArray()) {
@@ -194,5 +190,5 @@ public class StringSetImpl implements StreamSerializable, StringSet {
         }
         return curVertex.countTermVertexLower;
     }
-*/
+
 }
