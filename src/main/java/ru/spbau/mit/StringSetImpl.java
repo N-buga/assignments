@@ -149,11 +149,11 @@ public class StringSetImpl implements StreamSerializable, StringSet {
         }
     }
 
-    @Override
+/*    @Override
     public int howManyStartsWithPrefix(String prefix) {
         return helperRemove_Prefix(prefix, "howManyStartsWithPrefix");
     }
-
+*/
     /*    @Override
             public boolean remove(String element) {
                 if (!contains(element)) {
@@ -180,7 +180,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
     public int size() {
         return vertexHead.countTermVertexLower;
     }
-/*    @Override
+    @Override
     public int howManyStartsWithPrefix(String prefix) {
         Vertex curVertex = vertexHead;
         for (char c: prefix.toCharArray()) {
@@ -191,5 +191,5 @@ public class StringSetImpl implements StreamSerializable, StringSet {
         }
         return curVertex.countTermVertexLower;
     }
-*/
+
 }
