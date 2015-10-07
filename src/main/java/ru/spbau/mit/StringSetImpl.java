@@ -140,7 +140,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
         return curVertex.countTermVertexLower;
     }
 
-    @Override
+    /*@Override
     public boolean remove(String element) {
         if (helperRemove_Prefix(element, "remove") == 0) {
             return false;
@@ -148,39 +148,39 @@ public class StringSetImpl implements StreamSerializable, StringSet {
             return true;
         }
     }
-
-/*    @Override
+*/
+    @Override
     public int howManyStartsWithPrefix(String prefix) {
         return helperRemove_Prefix(prefix, "howManyStartsWithPrefix");
     }
-*/
-    /*    @Override
-            public boolean remove(String element) {
-                if (!contains(element)) {
-                    return false;
-                }
-                Vertex curVertex = vertexHead;
-                for (char c: element.toCharArray()){
-                    if (curVertex.countTermVertexLower > 1 && curVertex.links[c].countTermVertexLower == 1) {
-                        curVertex.countTermVertexLower--;
-                        curVertex.links[c] = null;
-                        return true;
-                    }
-                    else {
-                        curVertex.countTermVertexLower--;
-                        curVertex = curVertex.links[c];
-                    }
-                }
-                curVertex.isVertex = false;
+
+    @Override
+    public boolean remove(String element) {
+        if (!contains(element)) {
+            return false;
+        }
+        Vertex curVertex = vertexHead;
+        for (char c: element.toCharArray()){
+            if (curVertex.countTermVertexLower > 1 && curVertex.links[c].countTermVertexLower == 1) {
                 curVertex.countTermVertexLower--;
+                curVertex.links[c] = null;
                 return true;
             }
-        */
+            else {
+                curVertex.countTermVertexLower--;
+                curVertex = curVertex.links[c];
+            }
+        }
+        curVertex.isVertex = false;
+        curVertex.countTermVertexLower--;
+        return true;
+    }
+
     @Override
     public int size() {
         return vertexHead.countTermVertexLower;
     }
-    @Override
+/*    @Override
     public int howManyStartsWithPrefix(String prefix) {
         Vertex curVertex = vertexHead;
         for (char c: prefix.toCharArray()) {
@@ -191,5 +191,5 @@ public class StringSetImpl implements StreamSerializable, StringSet {
         }
         return curVertex.countTermVertexLower;
     }
-
+*/
 }
