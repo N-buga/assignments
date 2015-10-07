@@ -3,7 +3,7 @@ package ru.spbau.mit;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.function.Consumer;
+import java.util.function.*;
 
 /**
  * Created by n_buga on 28.09.15.
