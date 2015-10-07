@@ -77,7 +77,42 @@ public class TestFunctionalJava {
     }
 
     @Test
-    public void testCollections() {
+    public void testCombinePredicate() {
+
+        Predicate<Integer> pred0 = new Predicate<Integer>() {
+            @Override
+            public boolean apply (Integer x) {
+                return x > 5;
+            }
+        };
+
+        LinkedList<Integer> llist = new LinkedList<Integer>();
+        for (int i = 0; i < 10; i++) {
+            llist.add(i);
+        }
+
+        assertTrue(pred0.not().apply(5));
+        assertFalse(pred0.not().apply(6));
+
+        Predicate<Integer> pred1 = new Predicate<Integer>() {
+            @Override
+            public boolean apply(Integer x) {
+                return (x % 5 == 0);
+            }
+        };
+
+        assertTrue(pred0.not().or(pred1).apply(5));
+        assertTrue(pred0.not().or(pred1).apply(10));
+        assertFalse(pred0.not().or(pred1).apply(6));
+
+        assertTrue(pred0.not().and(pred1).apply(5));
+        assertFalse(pred0.not().and(pred1).apply(4));
+        assertFalse(pred0.not().and(pred1).apply(10));
+
+    }
+
+    @Test
+    public void testCollectionsBool() {
         LinkedList<Integer> llist = new LinkedList<Integer>();
         for (int i = 0; i < 10; i++)
             llist.add(i);
@@ -113,23 +148,37 @@ public class TestFunctionalJava {
             System.out.print(' ');
         }
         System.out.print('\n');
+    }
+
+    @Test
+    public void testCollectionsFor() {
+        Collection<Integer> curcoll;
+
+        LinkedList<Integer> llist = new LinkedList<Integer>();
+        for (int i = 0; i < 10; i++)
+            llist.add(i);
+
+        Predicate<Integer> pred = new Predicate<Integer>() {
+            @Override
+            public boolean apply(Integer x) {
+                return x > 5;
+            }
+        };
 
         List<Integer> llist2 = asList(6, 4, 6, 8, 2, 5, 7, 10, 1);
         curcoll = Collections.takeWhile(pred, llist2);
-        iter = curcoll.iterator();
         System.out.print("3:");
-        while (iter.hasNext()) {
-            System.out.print(iter.next());
+        for (Integer i: curcoll) {
+            System.out.print(i);
             System.out.print(' ');
         }
         System.out.print("\n");
 
         llist2 = asList(3, 7, 6, 2, 7, 8);
         curcoll = Collections.takeUnless(pred, llist2);
-        iter = curcoll.iterator();
         System.out.print("4:");
-        while (iter.hasNext()) {
-            System.out.print(iter.next());
+        for (Integer i: curcoll) {
+            System.out.print(i);
             System.out.print(' ');
         }
         System.out.print('\n');
@@ -145,11 +194,11 @@ public class TestFunctionalJava {
         assertTrue(a == -45);
 
         a = Collections.foldr(func2, llist);
-        System.out.print(a);
+        assertTrue(a == -27);
     }
 
     @Test
-    public void CombineTest() {
+    public void testCombineFunction() {
         Function2<Integer, Integer, Integer> func2 = new Function2<Integer, Integer, Integer>() {
             @Override
             public Integer apply(Integer x, Integer y) {
@@ -182,36 +231,6 @@ public class TestFunctionalJava {
         };
 
         assertTrue(15 == func1.compose(func01).apply(1));
-
-        Predicate<Integer> pred0 = new Predicate<Integer>() {
-            @Override
-            public boolean apply (Integer x) {
-                return x > 5;
-            }
-        };
-
-        LinkedList<Integer> llist = new LinkedList<Integer>();
-        for (int i = 0; i < 10; i++) {
-            llist.add(i);
-        }
-
-        assertTrue(pred0.not().apply(5));
-        assertFalse(pred0.not().apply(6));
-
-        Predicate<Integer> pred1 = new Predicate<Integer>() {
-            @Override
-            public boolean apply(Integer x) {
-                return (x % 5 == 0);
-            }
-        };
-
-        assertTrue(pred0.not().or(pred1).apply(5));
-        assertTrue(pred0.not().or(pred1).apply(10));
-        assertFalse(pred0.not().or(pred1).apply(6));
-
-        assertTrue(pred0.not().and(pred1).apply(5));
-        assertFalse(pred0.not().and(pred1).apply(4));
-        assertFalse(pred0.not().and(pred1).apply(10));
 
     }
 }

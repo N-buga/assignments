@@ -32,13 +32,8 @@ abstract public class Function2<T1, T2, R> {
     public Function1<T2, Function1<T1, R>> curry() {
         return new Function1<T2, Function1<T1, R>>() {
             @Override
-            public Function1<T1, R> apply(final T2 y) {
-                return new Function1<T1, R>() {
-                    @Override
-                    public R apply(T1 x) {
-                        return Function2.this.apply(x, y);
-                    }
-                };
+            public Function1<T1, R> apply(T2 x) {
+                return bind2(x);
             }
         };
     }
