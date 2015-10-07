@@ -116,7 +116,7 @@ public class StringSetImpl implements StreamSerializable, StringSet {
             return;
         }
         char c = element.charAt(i);
-        if (curVertex.countTermVertexLower > 0 && curVertex.links[c].countTermVertexLower == 1) {
+        if (curVertex.links[c].countTermVertexLower == 1) {
             curVertex.links[c] = null;
             return;
         }
