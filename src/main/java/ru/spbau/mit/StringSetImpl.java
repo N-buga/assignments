@@ -109,76 +109,34 @@ public class StringSetImpl implements StreamSerializable, StringSet {
         return curVertex.isVertex;
     }
 
-    private int helperRemove_Prefix(String element, String function) {
-        if (function == "remove" && !contains(element)) {
-            return 0;
-        }
-        Vertex curVertex = vertexHead;
-        for (char c: element.toCharArray()){
-//            if (curVertex.links[c] == null) {
-  //              return 0;
-    //        }
-            if (curVertex.countTermVertexLower > 1 && curVertex.links[c].countTermVertexLower == 1) {
-                if (function == "remove") {
-                    curVertex.countTermVertexLower--;
-                    curVertex.links[c] = null;
-                }
-                return 1;
-            }
-            else {
-                if (function == "remove") {
-                    curVertex.countTermVertexLower--;
-                }
-                curVertex = curVertex.links[c];
-            }
-        }
-        if (function == "remove") {
+    private void helperRemove(Vertex curVertex, String element, int i) {
+        curVertex.countTermVertexLower--;
+        if (i == element.length()) {
             curVertex.isVertex = false;
-            curVertex.countTermVertexLower--;
+            return;
         }
-        return curVertex.countTermVertexLower;
+        char c = element.charAt(i);
+        if (curVertex.countTermVertexLower > 0 && curVertex.links[c].countTermVertexLower == 1) {
+            curVertex.links[c] = null;
+            return;
+        }
+        helperRemove(curVertex.links[c], element, i + 1);
     }
 
     @Override
-    public boolean remove(String element) {
-        if (helperRemove_Prefix(element, "remove") == 0) {
-            return false;
-        } else {
-            return true;
-        }
-    }
-
-/*    @Override
-    public int howManyStartsWithPrefix(String prefix) {
-        return helperRemove_Prefix(prefix, "howManyStartsWithPrefix");
-    }
-*/
-/*    @Override
     public boolean remove(String element) {
         if (!contains(element)) {
             return false;
         }
-        Vertex curVertex = vertexHead;
-        for (char c: element.toCharArray()){
-            if (curVertex.countTermVertexLower > 1 && curVertex.links[c].countTermVertexLower == 1) {
-                curVertex.countTermVertexLower--;
-                curVertex.links[c] = null;
-                return true;
-            }
-            else {
-                curVertex.countTermVertexLower--;
-                curVertex = curVertex.links[c];
-            }
-        }
-        curVertex.isVertex = false;
-        curVertex.countTermVertexLower--;
+        helperRemove(vertexHead, element, 0);
         return true;
     }
-*/
+
     @Override
     public int size() {
         return vertexHead.countTermVertexLower;
     }
+
     @Override
     public int howManyStartsWithPrefix(String prefix) {
         Vertex curVertex = vertexHead;
