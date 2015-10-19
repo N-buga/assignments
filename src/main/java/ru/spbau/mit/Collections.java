@@ -9,6 +9,7 @@ import java.util.LinkedList;
  */
 
 public class Collections {
+
     static public <T, E> Collection<E> map(Function1<T, E> func, Iterable<? extends T> collection) {
         Collection<E> newCollection = new LinkedList<>();
         for (T curElement : collection) {
@@ -16,6 +17,7 @@ public class Collections {
         }
         return newCollection;
     }
+
     static public <T> Collection<T> filter(Predicate<T> pred, Iterable<? extends T> collection) {
         Collection<T> newCollection = new LinkedList<>();
         for (T curElement: collection) {
@@ -25,6 +27,7 @@ public class Collections {
         }
         return newCollection;
     }
+
     static public <T> Collection<T> takeWhile(Predicate<T> pred, Iterable<? extends T> collection) {
         Collection<T> newCollection = new LinkedList<>();
         for (T curElement: collection) {
@@ -46,26 +49,27 @@ public class Collections {
         return newCollection;
     }
 
-    static public <T> T foldl(Function2<T, T, T> func, Iterable<? extends T> collection) {
+    static public <T, R> R foldl(Function2<R, T, R> func, R init, Iterable<? extends T> collection) {
         Iterator<T> curIterator = (Iterator<T>) collection.iterator();
-        T curElement = curIterator.next();
-        T prevElement = null;
+        R answer = init;
+        T curElement = null;
         while (curIterator.hasNext()) {
-            prevElement = curElement;
             curElement = curIterator.next();
-            curElement = func.apply(prevElement, curElement);
+            answer = func.apply(answer, curElement);
         }
-        return curElement;
+        return answer;
     }
-    static public <T> T foldr(Function2<T, T, T> func, Iterable<? extends T> collection) {
+
+    static public <T, R> R foldr(Function2<T, R, R> func, R init, Iterable<? extends T> collection) {
         LinkedList<T> llist = new LinkedList<>();
         for (T element: collection) {
             llist.addFirst(element);
         }
-        T curElement = llist.get(0);
-        for (int i = 1; i < llist.size(); i++) {
-            curElement = func.apply(curElement, llist.get(i));
+        R answer = init;
+        for (int i = 0; i < llist.size(); i++) {
+            answer = func.apply(llist.get(i), answer);
         }
-        return curElement;
+        return answer;
     }
+
 }

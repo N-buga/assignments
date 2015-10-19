@@ -6,6 +6,7 @@ import java.util.Objects;
  * Created by n_buga on 28.09.15.
  */
 abstract public class Predicate<T> {
+
     public final static Predicate ALWAYS_TRUE = new Predicate() {
         @Override
         public boolean apply (Object x) {
@@ -21,22 +22,25 @@ abstract public class Predicate<T> {
     };
 
     public abstract boolean apply (T x);
-    public Predicate<T> or (final Predicate<? super T> pr2) {
-        return new Predicate<T>() {
+
+    public <R extends T> Predicate<R> or (final Predicate<R> pr2) {
+        return new Predicate<R>() {
             @Override
-            public boolean apply(T x) {
+            public boolean apply(R x) {
                 return (Predicate.this.apply(x) || pr2.apply(x));
             }
         };
     }
-    public Predicate<T> and (final Predicate<? super T> pr2) {
-        return new Predicate<T>() {
+
+    public <R extends T> Predicate<R> and (final Predicate<R> pr2) {
+        return new Predicate<R>() {
             @Override
-            public boolean apply(T x) {
+            public boolean apply(R x) {
                 return (Predicate.this.apply(x) && pr2.apply(x));
             }
         };
     }
+
     public Predicate<T> not() {
         return new Predicate<T>() {
             @Override
@@ -44,5 +48,7 @@ abstract public class Predicate<T> {
                 return !Predicate.this.apply(x);
             }
         };
+
     }
+
 }
