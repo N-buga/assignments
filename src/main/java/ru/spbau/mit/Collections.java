@@ -10,7 +10,7 @@ import java.util.LinkedList;
 
 public class Collections {
 
-    static public <T, E> Collection<E> map(Function1<T, E> func, Iterable<? extends T> collection) {
+    public static  <T, E> Collection<E> map(Function1<T, E> func, Iterable<? extends T> collection) {
         Collection<E> newCollection = new LinkedList<>();
         for (T curElement : collection) {
             newCollection.add(func.apply(curElement));
@@ -18,7 +18,7 @@ public class Collections {
         return newCollection;
     }
 
-    static public <T> Collection<T> filter(Predicate<T> pred, Iterable<? extends T> collection) {
+    public static  <T> Collection<T> filter(Predicate<T> pred, Iterable<? extends T> collection) {
         Collection<T> newCollection = new LinkedList<>();
         for (T curElement: collection) {
             if (pred.apply(curElement)) {
@@ -28,7 +28,7 @@ public class Collections {
         return newCollection;
     }
 
-    static public <T> Collection<T> takeWhile(Predicate<T> pred, Iterable<? extends T> collection) {
+    public static <T> Collection<T> takeWhile(Predicate<T> pred, Iterable<? extends T> collection) {
         Collection<T> newCollection = new LinkedList<>();
         for (T curElement: collection) {
             if (pred.apply(curElement)) {
@@ -39,17 +39,11 @@ public class Collections {
         return newCollection;
     }
 
-    static public <T> Collection<T> takeUnless(Predicate<T> pred, Iterable<? extends T> collection) {
-        Collection<T> newCollection = new LinkedList<>();
-        for (T curElement: collection) {
-            if (!pred.apply(curElement)) {
-                newCollection.add(curElement);
-            } else break;
-        }
-        return newCollection;
+    public static <T> Collection<T> takeUnless(Predicate<T> pred, Iterable<? extends T> collection) {
+        return takeWhile(pred.not(), collection);
     }
 
-    static public <T, R> R foldl(Function2<R, T, R> func, R init, Iterable<? extends T> collection) {
+    public static <T, R> R foldl(Function2<R, T, R> func, R init, Iterable<? extends T> collection) {
         Iterator<T> curIterator = (Iterator<T>) collection.iterator();
         R answer = init;
         T curElement = null;
@@ -60,14 +54,14 @@ public class Collections {
         return answer;
     }
 
-    static public <T, R> R foldr(Function2<T, R, R> func, R init, Iterable<? extends T> collection) {
-        LinkedList<T> llist = new LinkedList<>();
+    public static <T, R> R foldr(Function2<T, R, R> func, R init, Iterable<? extends T> collection) {
+        LinkedList<T> linkedList = new LinkedList<>();
         for (T element: collection) {
-            llist.addFirst(element);
+            linkedList.addFirst(element);
         }
         R answer = init;
-        for (int i = 0; i < llist.size(); i++) {
-            answer = func.apply(llist.get(i), answer);
+        for (int i = 0; i < linkedList.size(); i++) {
+            answer = func.apply(linkedList.get(i), answer);
         }
         return answer;
     }

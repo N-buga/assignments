@@ -21,9 +21,9 @@ abstract public class Predicate<T> {
         }
     };
 
-    public abstract boolean apply (T x);
+    public abstract boolean apply(T x);
 
-    public <R extends T> Predicate<R> or (final Predicate<R> pr2) {
+    public <R extends T> Predicate<R> or(final Predicate<R> pr2) {
         return new Predicate<R>() {
             @Override
             public boolean apply(R x) {
@@ -32,7 +32,7 @@ abstract public class Predicate<T> {
         };
     }
 
-    public <R extends T> Predicate<R> and (final Predicate<R> pr2) {
+    public <R extends T> Predicate<R> and(final Predicate<R> pr2) {
         return new Predicate<R>() {
             @Override
             public boolean apply(R x) {
@@ -48,7 +48,6 @@ abstract public class Predicate<T> {
                 return !Predicate.this.apply(x);
             }
         };
-
     }
 
 }
