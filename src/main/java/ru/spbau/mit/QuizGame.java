@@ -1,6 +1,5 @@
 package ru.spbau.mit;
 
-import javafx.util.Pair;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -8,6 +7,15 @@ import java.util.*;
 
 
 public class QuizGame implements Game {
+
+    private class MyPair<T, R> {
+        T key;
+        R value;
+        MyPair(T key_, R value_) {
+            key = key_;
+            value = value_;
+        }
+    }
 
     public enum State {
         NOT_RUN, RUN
@@ -21,7 +29,7 @@ public class QuizGame implements Game {
     private int maxCountLetter;
     private Timer myTymer = new Timer();
     private int curLetterNumber = 0;
-    private ArrayList<Pair<String, String>> listQuestions = new ArrayList();
+    private ArrayList<MyPair<String, String>> listQuestions = new ArrayList<>();
 
     public QuizGame(GameServer server) {
         gameServer = server;
@@ -62,15 +70,15 @@ public class QuizGame implements Game {
         while (myfile.hasNext()) {
             curString = myfile.nextLine();
             arrayString = curString.split(";");
-            listQuestions.add(new Pair(arrayString[0] + " (" + arrayString[1].length() + " letters)", arrayString[1]));
+            listQuestions.add(new MyPair<>(arrayString[0] + " (" + arrayString[1].length() + " letters)", arrayString[1]));
         }
     }
 
     private synchronized void startGame() {
         if (numberOfQuestion == listQuestions.size())
             numberOfQuestion = 0;
-        String question = listQuestions.get(numberOfQuestion).getKey();
-        curAnswer = listQuestions.get(numberOfQuestion++).getValue();
+        String question = listQuestions.get(numberOfQuestion).key;
+        curAnswer = listQuestions.get(numberOfQuestion++).value;
         gameServer.broadcast("New round started: " + question);
         myTymer.schedule(new myTimerTask(), delay);
     }
@@ -82,16 +90,16 @@ public class QuizGame implements Game {
     @Override
     public synchronized void onPlayerSentMsg(String id, String msg) {
         if (state == State.NOT_RUN) {
-            if (msg == "!start") {
+            if (msg.equals("!start")) {
                 startGame();
                 state = State.RUN;
             }
         } else if (state == State.RUN){
-            if (msg == "!stop") {
+            if (msg.equals("!stop")) {
                 state = State.NOT_RUN;
                 gameServer.broadcast("Game has been stopped by " + id);
             } else {
-                if (msg.compareTo(curAnswer) == 0) {
+                if (msg.equals(curAnswer)) {
                     gameServer.broadcast("The winner is " + id);
                     startGame();
                 } else {
