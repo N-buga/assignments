@@ -1,7 +1,5 @@
 package ru.spbau.mit;
 
-import com.sun.xml.internal.bind.v2.runtime.reflect.opt.Const;
-import com.sun.xml.internal.ws.wsdl.writer.document.ParamType;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
@@ -33,10 +31,10 @@ public class GameServerImpl implements GameServer {
             String sValue = properties.getProperty(s);
             Method curMethod;
             if (sValue.matches("[-+]?\\d+")) {
-                curMethod = gameClass.getMethod(sMethod, new Class[] { int.class });
+                curMethod = gameClass.getMethod(sMethod, int.class);
                 curMethod.invoke(game, Integer.parseInt(sValue));
             } else {
-                curMethod = gameClass.getMethod(sMethod, new Class[] {String.class});
+                curMethod = gameClass.getMethod(sMethod, String.class);
                 curMethod.invoke(game, sValue);
             }
         }
