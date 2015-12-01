@@ -128,7 +128,6 @@ public class GameServerImpl implements GameServer {
         Connection curConnection = integerConnectionMap.get(idInt);
         synchronized (curConnection) {
             messageQueue.get(idInt).add(message);
-            curConnection.notify();
         }
     }
 }
