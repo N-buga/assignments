@@ -21,8 +21,8 @@ public class Injector {
                 throw new AmbiguousImplementationException();
             }
             if (parameter.isAssignableFrom(curClass)) {
-                if (instancesClasses.containsKey(curClass)) {
-                    returnObject = instancesClasses.get(curClass);
+                if (instancesClasses.containsKey(parameter)) {
+                    returnObject = instancesClasses.get(parameter);
                 } else {
                     returnObject = doInstance(curClass.getName(), implementationClassNames);
                 }
@@ -56,10 +56,10 @@ public class Injector {
         if (rootParamTypes.length == 0) {
             Object instance;
             try {
-                instance = rootClass.newInstance();
+                instance = rootConstructor.newInstance();
             } catch (AssertionError e) {
-//                throw e;
-                throw new AmbiguousImplementationException();
+                throw e;
+//                throw new AmbiguousImplementationException();
             }
             instancesClasses.put(rootClass, instance);
             isTake.put(rootClass, false);
