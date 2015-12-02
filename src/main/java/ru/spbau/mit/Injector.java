@@ -58,8 +58,8 @@ public class Injector {
             try {
                 instance = rootClass.newInstance();
             } catch (AssertionError e) {
-                throw e;
-//                throw new AmbiguousImplementationException();
+//                throw e;
+                throw new AmbiguousImplementationException();
             }
             instancesClasses.put(rootClass, instance);
             isTake.put(rootClass, false);
