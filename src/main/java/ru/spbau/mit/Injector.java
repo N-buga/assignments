@@ -68,11 +68,15 @@ public class Injector {
 
         isTake.put(rootClass, false);
         try {
+            if (instancesClasses.containsKey(rootClass)) {
+                return instancesClasses.get(rootClass);
+            }
             Object returnValue = rootConstructor.newInstance(args.toArray());
             instancesClasses.put(rootClass, returnValue);
             return returnValue;
         } catch (InvocationTargetException e) {
-            throw new AmbiguousImplementationException();
+//            throw new AmbiguousImplementationException();
+            throw e;
         }
     }
 }
