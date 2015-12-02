@@ -53,6 +53,13 @@ public class Injector {
                             classWithcRealizationInter.put(curParameter, curImplemClass);
                         }
                     }
+                    if (curParameter == rootClass) {
+                        if (classWithcRealizationInter.get(curParameter) != null) {
+                            throw new AmbiguousImplementationException();
+                        } else {
+                            classWithcRealizationInter.put(curParameter, rootClass);
+                        }
+                    }
                 }
             }
             LinkedList<Class> paramTypes = new LinkedList<>();
