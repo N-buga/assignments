@@ -12,7 +12,7 @@ public class Injector {
      * `implementationClassNames` for concrete dependencies.
      */
 
-    private static Object findImplementation(Class rootClass, Class parameter, List<String> implementationClassNames) throws Exception {
+    private static Object findImplementation(Class parameter, List<String> implementationClassNames) throws Exception {
         if (instancesClasses.containsKey(parameter)) {
             return instancesClasses.get(parameter);
         }
@@ -28,21 +28,8 @@ public class Injector {
                     throw new AmbiguousImplementationException();
                 }
                 if (interfaceCurClass == parameter) {
-                    returnObject = initialize(curClass.getName(), implementationClassNames);
+                    returnObject = doInstance(curClass.getName(), implementationClassNames);
                 }
-            }
-        }
-
-        LinkedList<Class> interfacesRootClass = new LinkedList<>(Arrays.asList(rootClass.getInterfaces()));
-        interfacesRootClass.add(rootClass);
-
-        for (Class interfaceRootClass: interfacesRootClass) {
-            if (parameter != null && parameter == interfaceRootClass) {
-                throw new AmbiguousImplementationException();
-            }
-
-            if (parameter == interfaceRootClass) {
-                throw new InjectionCycleException();
             }
         }
 
@@ -50,6 +37,13 @@ public class Injector {
     }
 
     public static Object initialize(String rootClassName, List<String> implementationClassNames) throws Exception {
+        LinkedList<String> allImplementationClassName = new LinkedList<>(implementationClassNames);
+        allImplementationClassName.add(rootClassName);
+        return doInstance(rootClassName, allImplementationClassName);
+    }
+
+    public static Object doInstance(String rootClassName, List<String> implementationClassNames) throws Exception
+    {
         Class rootClass = Class.forName(rootClassName);
 
         if (instancesClasses.containsKey(rootClass))
@@ -76,7 +70,7 @@ public class Injector {
             LinkedList<Object> args = new LinkedList<>();
 
             for (Class curParameter: rootParamTypes) {
-                args.add(findImplementation(rootClass, curParameter, implementationClassNames));
+                args.add(findImplementation(curParameter, implementationClassNames));
             }
 
             for (Object parameter: args) {
