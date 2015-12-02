@@ -37,7 +37,7 @@ public class Injector {
         instancesClasses  = new HashMap<>();
         List<String> allImplementationClassName = new LinkedList<>(implementationClassNames);
         allImplementationClassName.add(rootClassName);
-        return doInstance(rootClassName, allImplementationClassName);
+        return findImplementation(Class.forName(rootClassName), allImplementationClassName);
     }
 
     public static Object doInstance(String rootClassName, List<String> implementationClassNames) throws Exception {
