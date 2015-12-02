@@ -1,6 +1,7 @@
 package ru.spbau.mit;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
@@ -66,11 +67,12 @@ public class Injector {
         }
 
         isTake.put(rootClass, false);
-        if ((Class.forName(rootClassName).getModifiers() & (Modifier.INTERFACE | Modifier.ABSTRACT)) != 0) {
-            throw new Exception();
+        try {
+            Object returnValue = rootConstructor.newInstance(args.toArray());
+            instancesClasses.put(rootClass, returnValue);
+            return returnValue;
+        } catch (InvocationTargetException e) {
+            throw new AmbiguousImplementationException();
         }
-        Object returnValue = rootConstructor.newInstance(args.toArray());
-        instancesClasses.put(rootClass, returnValue);
-        return returnValue;
     }
 }
