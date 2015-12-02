@@ -80,7 +80,9 @@ public class Injector {
             }
 
             isTake.put(rootClass, false);
-            return rootConstructor.newInstance(args.toArray());
+            Object returnValue = rootConstructor.newInstance(args.toArray());
+            instancesClasses.put(rootClass, returnValue);
+            return returnValue;
         }
     }
 }
