@@ -21,8 +21,8 @@ public class Injector {
                 throw new AmbiguousImplementationException();
             }
             if (parameter.isAssignableFrom(curClass)) {
-                if (instancesClasses.containsKey(parameter)) {
-                    returnObject = instancesClasses.get(parameter);
+                if (instancesClasses.containsKey(curClass)) {
+                    returnObject = instancesClasses.get(curClass);
                 } else {
                     returnObject = doInstance(curClass.getName(), implementationClassNames);
                 }
