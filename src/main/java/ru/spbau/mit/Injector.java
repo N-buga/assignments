@@ -1,10 +1,7 @@
 package ru.spbau.mit;
 
 import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class Injector {
@@ -14,14 +11,56 @@ public class Injector {
      * Create and initialize object of `rootClassName` class using classes from
      * `implementationClassNames` for concrete dependencies.
      */
+
+    private static Object findImplementation(Class rootClass, Class parameter, List<String> implementationClassNames) throws Exception {
+        if (instancesClasses.containsKey(parameter)) {
+            return instancesClasses.get(parameter);
+        }
+
+        Object returnObject = null;
+
+        for (String nameClass: implementationClassNames) {
+            Class curClass = Class.forName(nameClass);
+            LinkedList<Class> interfacesCurClass = new LinkedList(Arrays.asList(curClass.getInterfaces()));
+            interfacesCurClass.add(curClass);
+            for (Class interfaceCurClass: interfacesCurClass) {
+                if (interfaceCurClass == parameter && returnObject != null) {
+                    throw new AmbiguousImplementationException();
+                }
+                if (interfaceCurClass == parameter) {
+                    returnObject = initialize(curClass.getName(), implementationClassNames);
+                }
+            }
+        }
+
+        LinkedList<Class> interfacesRootClass = new LinkedList<>(Arrays.asList(rootClass.getInterfaces()));
+        interfacesRootClass.add(rootClass);
+
+        for (Class interfaceRootClass: interfacesRootClass) {
+            if (parameter != null && parameter == interfaceRootClass) {
+                throw new AmbiguousImplementationException();
+            }
+
+            if (parameter == interfaceRootClass) {
+                throw new InjectionCycleException();
+            }
+        }
+
+        return returnObject;
+    }
+
     public static Object initialize(String rootClassName, List<String> implementationClassNames) throws Exception {
         Class rootClass = Class.forName(rootClassName);
+
+        if (instancesClasses.containsKey(rootClass))
+            return instancesClasses.get(rootClass);
+
         if (isTake.containsKey(rootClass) && isTake.get(rootClass)) {
             throw new InjectionCycleException();
         }
+
         isTake.put(rootClass, true);
         Constructor rootConstructor = rootClass.getConstructors()[0];
-
         Class[] rootParamTypes = rootConstructor.getParameterTypes();
         if (rootParamTypes.length == 0) {
             Object instance = rootClass.newInstance();
@@ -29,49 +68,23 @@ public class Injector {
             isTake.put(rootClass, false);
             return instance;
         } else {
-            Map<Class, Class> classWithcRealizationInter = new HashMap<>();
+            Map<Class, Class> classImplParameter = new HashMap<>();
             for (Class needRealization: rootParamTypes) {
-                classWithcRealizationInter.put(needRealization, null);
+                classImplParameter.put(needRealization, null);
             }
-            for (String implemClassesName: implementationClassNames) {
-                Class curImplemClass = Class.forName(implemClassesName);
-                Class[] curInterface = curImplemClass.getInterfaces();
-                for (Class curParameter: rootParamTypes) {
-                    for (Class realizInterface: curInterface) {
-                        if (curParameter == realizInterface) {
-                            if (classWithcRealizationInter.get(curParameter) != null) {
-                                throw new AmbiguousImplementationException();
-                            } else {
-                                classWithcRealizationInter.put(curParameter, curImplemClass);
-                            }
-                        }
-                    }
-                    if (curParameter == curImplemClass) {
-                        if (classWithcRealizationInter.get(curParameter) != null) {
-                            throw new AmbiguousImplementationException();
-                        } else {
-                            classWithcRealizationInter.put(curParameter, curImplemClass);
-                        }
-                    }
-                    if (curParameter == rootClass) {
-                        if (classWithcRealizationInter.get(curParameter) != null) {
-                            throw new AmbiguousImplementationException();
-                        } else {
-                            classWithcRealizationInter.put(curParameter, rootClass);
-                        }
-                    }
-                }
-            }
-            LinkedList<Class> paramTypes = new LinkedList<>();
+
             LinkedList<Object> args = new LinkedList<>();
-            for (Class needRealization: rootParamTypes) {
-                if (classWithcRealizationInter.get(needRealization) == null) {
+
+            for (Class curParameter: rootParamTypes) {
+                args.add(findImplementation(rootClass, curParameter, implementationClassNames));
+            }
+
+            for (Object parameter: args) {
+                if (parameter == null) {
                     throw new ImplementationNotFoundException();
-                } else {
-                    paramTypes.add(classWithcRealizationInter.get(needRealization));
-                    args.add(initialize(classWithcRealizationInter.get(needRealization).getName() ,implementationClassNames));
                 }
             }
+
             isTake.put(rootClass, false);
             return rootConstructor.newInstance(args.toArray());
         }
