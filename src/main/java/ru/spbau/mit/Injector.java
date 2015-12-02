@@ -21,15 +21,11 @@ public class Injector {
 
         for (String nameClass: implementationClassNames) {
             Class curClass = Class.forName(nameClass);
-            LinkedList<Class> interfacesCurClass = new LinkedList(Arrays.asList(curClass.getInterfaces()));
-            interfacesCurClass.add(curClass);
-            for (Class interfaceCurClass: interfacesCurClass) {
-                if (interfaceCurClass == parameter && returnObject != null) {
-                    throw new AmbiguousImplementationException();
-                }
-                if (interfaceCurClass == parameter) {
-                    returnObject = doInstance(curClass.getName(), implementationClassNames);
-                }
+            if (parameter.isAssignableFrom(curClass) && returnObject != null) {
+                throw new AmbiguousImplementationException();
+            }
+            if (parameter.isAssignableFrom(curClass)) {
+                returnObject = doInstance(curClass.getName(), implementationClassNames);
             }
         }
 
