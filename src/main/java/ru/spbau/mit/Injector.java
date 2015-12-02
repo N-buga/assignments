@@ -33,13 +33,12 @@ public class Injector {
     }
 
     public static Object initialize(String rootClassName, List<String> implementationClassNames) throws Exception {
-        LinkedList<String> allImplementationClassName = new LinkedList<>(implementationClassNames);
+        List<String> allImplementationClassName = new LinkedList<>(implementationClassNames);
         allImplementationClassName.add(rootClassName);
         return doInstance(rootClassName, allImplementationClassName);
     }
 
-    public static Object doInstance(String rootClassName, List<String> implementationClassNames) throws Exception
-    {
+    public static Object doInstance(String rootClassName, List<String> implementationClassNames) throws Exception {
         Class rootClass = Class.forName(rootClassName);
 
         if (instancesClasses.containsKey(rootClass))
@@ -54,6 +53,7 @@ public class Injector {
         Class[] rootParamTypes = rootConstructor.getParameterTypes();
         if (rootParamTypes.length == 0) {
             Object instance = rootClass.newInstance();
+            assert(instance != null);
             instancesClasses.put(rootClass, instance);
             isTake.put(rootClass, false);
             return instance;
@@ -72,6 +72,7 @@ public class Injector {
 
             isTake.put(rootClass, false);
             Object returnValue = rootConstructor.newInstance(args.toArray());
+            assert(returnValue != null);
             instancesClasses.put(rootClass, returnValue);
             return returnValue;
         }
