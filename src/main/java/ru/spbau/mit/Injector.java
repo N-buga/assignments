@@ -5,8 +5,8 @@ import java.util.*;
 
 
 public class Injector {
-    static Map<Class, Boolean> isTake = new HashMap<Class, Boolean>();
-    static Map<Class, Object> instancesClasses = new HashMap<>();
+    static Map<Class, Boolean> isTake;
+    static Map<Class, Object> instancesClasses;
     /**
      * Create and initialize object of `rootClassName` class using classes from
      * `implementationClassNames` for concrete dependencies.
@@ -25,7 +25,6 @@ public class Injector {
                     returnObject = instancesClasses.get(parameter);
                 } else {
                     returnObject = doInstance(curClass.getName(), implementationClassNames);
-                    assert(returnObject != null);
                 }
             }
         }
@@ -34,6 +33,8 @@ public class Injector {
     }
 
     public static Object initialize(String rootClassName, List<String> implementationClassNames) throws Exception {
+        isTake = new HashMap<>();
+        instancesClasses  = new HashMap<>();
         List<String> allImplementationClassName = new LinkedList<>(implementationClassNames);
         allImplementationClassName.add(rootClassName);
         return doInstance(rootClassName, allImplementationClassName);
@@ -54,7 +55,6 @@ public class Injector {
         Class[] rootParamTypes = rootConstructor.getParameterTypes();
         if (rootParamTypes.length == 0) {
             Object instance = rootClass.newInstance();
-            assert(instance != null);
             instancesClasses.put(rootClass, instance);
             isTake.put(rootClass, false);
             return instance;
@@ -73,7 +73,6 @@ public class Injector {
 
             isTake.put(rootClass, false);
             Object returnValue = rootConstructor.newInstance(args.toArray());
-            assert(returnValue != null);
             instancesClasses.put(rootClass, returnValue);
             return returnValue;
         }
