@@ -1,6 +1,7 @@
 package ru.spbau.mit;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Modifier;
 import java.util.*;
 
 
@@ -28,7 +29,9 @@ public class Injector {
                 }
             }
         }
-
+        if (returnObject == null) {
+            throw new ImplementationNotFoundException();
+        }
         return returnObject;
     }
 
@@ -36,7 +39,9 @@ public class Injector {
         isTake = new HashMap<>();
         instancesClasses  = new HashMap<>();
         List<String> allImplementationClassName = new LinkedList<>(implementationClassNames);
-        allImplementationClassName.add(rootClassName);
+        if ((Class.forName(rootClassName).getModifiers() & (Modifier.INTERFACE | Modifier.ABSTRACT)) == 0) {
+            allImplementationClassName.add(rootClassName);
+        }
         return findImplementation(Class.forName(rootClassName), allImplementationClassName);
     }
 
@@ -58,12 +63,6 @@ public class Injector {
 
         for (Class curParameter : rootParamTypes) {
             args.add(findImplementation(curParameter, implementationClassNames));
-        }
-
-        for (Object parameter : args) {
-            if (parameter == null) {
-                throw new ImplementationNotFoundException();
-            }
         }
 
         isTake.put(rootClass, false);
