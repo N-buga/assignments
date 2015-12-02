@@ -54,7 +54,12 @@ public class Injector {
         Constructor rootConstructor = rootClass.getConstructors()[0];
         Class[] rootParamTypes = rootConstructor.getParameterTypes();
         if (rootParamTypes.length == 0) {
-            Object instance = rootClass.newInstance();
+            Object instance;
+            try {
+                instance = rootClass.newInstance();
+            } catch (AssertionError e) {
+                throw new AmbiguousImplementationException();
+            }
             instancesClasses.put(rootClass, instance);
             isTake.put(rootClass, false);
             return instance;
