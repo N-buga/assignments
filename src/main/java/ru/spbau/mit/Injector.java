@@ -23,6 +23,7 @@ public class Injector {
             if (parameter.isAssignableFrom(curClass)) {
                 if (instancesClasses.containsKey(parameter)) {
                     returnObject = instancesClasses.get(parameter);
+                    assert(returnObject != null);
                 } else {
                     returnObject = doInstance(curClass.getName(), implementationClassNames);
                 }
