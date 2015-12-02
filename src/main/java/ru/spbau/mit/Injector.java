@@ -66,7 +66,9 @@ public class Injector {
         }
 
         isTake.put(rootClass, false);
-        assert(rootConstructor != null);
+        if ((Class.forName(rootClassName).getModifiers() & (Modifier.INTERFACE | Modifier.ABSTRACT)) != 0) {
+            throw new Exception();
+        }
         Object returnValue = rootConstructor.newInstance(args.toArray());
         instancesClasses.put(rootClass, returnValue);
         return returnValue;
