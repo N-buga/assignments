@@ -13,10 +13,6 @@ public class Injector {
      */
 
     private static Object findImplementation(Class parameter, List<String> implementationClassNames) throws Exception {
-        if (instancesClasses.containsKey(parameter)) {
-            return instancesClasses.get(parameter);
-        }
-
         Object returnObject = null;
 
         for (String nameClass: implementationClassNames) {
@@ -25,7 +21,11 @@ public class Injector {
                 throw new AmbiguousImplementationException();
             }
             if (parameter.isAssignableFrom(curClass)) {
-                returnObject = doInstance(curClass.getName(), implementationClassNames);
+                if (instancesClasses.containsKey(parameter)) {
+                    returnObject = instancesClasses.get(parameter);
+                } else {
+                    returnObject = doInstance(curClass.getName(), implementationClassNames);
+                }
             }
         }
 
