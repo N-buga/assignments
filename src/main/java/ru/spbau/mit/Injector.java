@@ -66,6 +66,7 @@ public class Injector {
         }
 
         isTake.put(rootClass, false);
+        assert(rootConstructor != null);
         Object returnValue = rootConstructor.newInstance(args.toArray());
         instancesClasses.put(rootClass, returnValue);
         return returnValue;
