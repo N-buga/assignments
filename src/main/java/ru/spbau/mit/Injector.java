@@ -12,7 +12,7 @@ public class Injector {
      * `implementationClassNames` for concrete dependencies.
      */
 
-    private static Object findImplementation(Class parameter, List<String> implementationClassNames) throws Exception {
+    private static Object findImplementation(Class<?> parameter, List<String> implementationClassNames) throws Exception {
         Object returnObject = null;
 
         for (String nameClass: implementationClassNames) {
@@ -58,11 +58,6 @@ public class Injector {
             isTake.put(rootClass, false);
             return instance;
         } else {
-            Map<Class, Class> classImplParameter = new HashMap<>();
-            for (Class needRealization: rootParamTypes) {
-                classImplParameter.put(needRealization, null);
-            }
-
             LinkedList<Object> args = new LinkedList<>();
 
             for (Class curParameter: rootParamTypes) {
