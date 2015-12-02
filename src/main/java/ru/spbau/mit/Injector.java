@@ -52,36 +52,23 @@ public class Injector {
 
         isTake.put(rootClass, true);
         Constructor rootConstructor = rootClass.getConstructors()[0];
+        assert (rootConstructor != null);
         Class[] rootParamTypes = rootConstructor.getParameterTypes();
-/*        if (rootParamTypes.length == 0) {
-            Object instance;
-            try {
-                instance = rootConstructor.newInstance();
-            } catch (AssertionError e) {
-                throw e;
-//                throw new AmbiguousImplementationException();
-            }
-            instancesClasses.put(rootClass, instance);
-            isTake.put(rootClass, false);
-            return instance;
-        } else {
-*/
-            LinkedList<Object> args = new LinkedList<>();
+        LinkedList<Object> args = new LinkedList<>();
 
-            for (Class curParameter: rootParamTypes) {
-                args.add(findImplementation(curParameter, implementationClassNames));
-            }
+        for (Class curParameter : rootParamTypes) {
+            args.add(findImplementation(curParameter, implementationClassNames));
+        }
 
-            for (Object parameter: args) {
-                if (parameter == null) {
-                    throw new ImplementationNotFoundException();
-                }
+        for (Object parameter : args) {
+            if (parameter == null) {
+                throw new ImplementationNotFoundException();
             }
+        }
 
-            isTake.put(rootClass, false);
-            Object returnValue = rootConstructor.newInstance(args.toArray());
-            instancesClasses.put(rootClass, returnValue);
-            return returnValue;
-//        }
+        isTake.put(rootClass, false);
+        Object returnValue = rootConstructor.newInstance(args.toArray());
+        instancesClasses.put(rootClass, returnValue);
+        return returnValue;
     }
 }
