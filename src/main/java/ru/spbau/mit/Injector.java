@@ -53,7 +53,7 @@ public class Injector {
         isTake.put(rootClass, true);
         Constructor rootConstructor = rootClass.getConstructors()[0];
         Class[] rootParamTypes = rootConstructor.getParameterTypes();
-        if (rootParamTypes.length == 0) {
+/*        if (rootParamTypes.length == 0) {
             Object instance;
             try {
                 instance = rootConstructor.newInstance();
@@ -65,6 +65,7 @@ public class Injector {
             isTake.put(rootClass, false);
             return instance;
         } else {
+*/
             LinkedList<Object> args = new LinkedList<>();
 
             for (Class curParameter: rootParamTypes) {
@@ -81,6 +82,6 @@ public class Injector {
             Object returnValue = rootConstructor.newInstance(args.toArray());
             instancesClasses.put(rootClass, returnValue);
             return returnValue;
-        }
+//        }
     }
 }
