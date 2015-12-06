@@ -5,18 +5,19 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 
 public class GameServerImpl implements GameServer {
 
-    final private Map<Connection, Integer> connectionIntegerMap = new HashMap<>();
-    final private Map<Integer, Connection> integerConnectionMap = new HashMap<>();
-    final private Map<Integer, Queue<String>> messageQueue = new HashMap<>();
+    private final Map<Integer, ConnectionManager> integerConnectionMap = new HashMap<>();
+    ReadWriteLock lock = new ReentrantReadWriteLock();
 
     private int maxNumber = 0;
     private Game game;
 
-    static private String getNameMethodByKey(String key) {
+    private static String getNameMethodByKey(String key) {
         return "set" + key.substring(0, 1).toUpperCase() + key.substring(1);
     }
 
@@ -42,92 +43,84 @@ public class GameServerImpl implements GameServer {
         }
     }
 
-    static private boolean needClose(Connection connection) {
-        return  (Thread.interrupted() || connection.isClosed());
-    }
 
-    private class MyRunnableClass implements Runnable {
+    private class ConnectionManager implements Runnable {
 
         final private int curID;
         final private Connection connection;
+        final private Queue<String> messageQueue = new LinkedList<>();
 
-        MyRunnableClass(int curID, Connection connection) {
-            synchronized (connection) {
+        ConnectionManager(int curID, Connection connection) {
                 this.curID = curID;
                 this.connection = connection;
-            }
         }
 
-        private void sendAndGetMessage() throws InterruptedException {
-            while (true) {
-                try {
-                    if (needClose(connection))
-                        return;
-//                    int counter = 0;
-                    while (!(needClose(connection))) {
-//                        counter++;
-//                        if (counter == 100) {
-//                            counter = 0;
-                        Thread.sleep(0, 40);
-                        synchronized (connection) {
-                            while (!(needClose(connection)) && !messageQueue.get(curID).isEmpty()) {
-                                connection.send(messageQueue.get(curID).poll());
-                            }
-                        }
-                        if (needClose(connection)) return;
-                        String msg = connection.receive(100);
-                        if (needClose(connection)) return;
-                        if (msg != null) {
-                            game.onPlayerSentMsg(Integer.toString(curID), msg);
-                        }
-                    }
-                    return;
-                } catch (NullPointerException e) {}
-            }
+        private synchronized void addMessage(String msg) {
+            messageQueue.add(msg);
+        }
+
+        private boolean needClose() {
+            return  (Thread.interrupted() || connection.isClosed());
         }
 
         @Override
         public void run() {
-            while (!Thread.interrupted()) {
-                try {
-                    sendAndGetMessage();
-                } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt();
-                    return;
+            try {
+                while (!needClose()) {
+                    synchronized (this) {
+                        while (!needClose() && !messageQueue.isEmpty()) {
+                            connection.send(messageQueue.poll());
+                        }
+                    }
+                    if (needClose()) return;
+                    String msg = connection.receive(100);
+                    if (needClose()) return;
+                    if (msg != null) {
+                        game.onPlayerSentMsg(Integer.toString(curID), msg);
+                    }
                 }
+            } catch (InterruptedException e) {
+                return;
             }
         }
     }
 
     @Override
     public void accept(final Connection connection) {
-        integerConnectionMap.put(maxNumber, connection);
-        connectionIntegerMap.put(connection, maxNumber);
-        messageQueue.put(maxNumber, new LinkedList<String>());
-        connection.send(Integer.toString(maxNumber));
-        Thread t = new Thread(new MyRunnableClass(maxNumber, connection));
-        t.start();
-        game.onPlayerConnected(Integer.toString(maxNumber++));
+        lock.writeLock().lock();
+        try {
+            ConnectionManager curConnectionManager = new ConnectionManager(maxNumber, connection);
+            integerConnectionMap.put(maxNumber, curConnectionManager);
+            curConnectionManager.addMessage(Integer.toString(maxNumber));
+            Thread t = new Thread(curConnectionManager);
+            game.onPlayerConnected(Integer.toString(maxNumber++));
+            t.start();
+        } finally {
+            lock.writeLock().unlock();
+        }
     }
 
     @Override
     public void broadcast(String message) {
-        for (Connection curConnection: connectionIntegerMap.keySet()) {
-            synchronized (curConnection) {
-                messageQueue.get(connectionIntegerMap.get(curConnection)).add(message);
-                curConnection.notify();
+        lock.readLock().lock();
+        try {
+            for (Integer curID: integerConnectionMap.keySet()) {
+                integerConnectionMap.get(curID).addMessage(message);
             }
+        } finally {
+            lock.readLock().unlock();
         }
     }
 
     @Override
     public void sendTo(String id, String message) throws NumberFormatException {
-        int idInt;
-        idInt = Integer.parseInt(id);
-
-        Connection curConnection = integerConnectionMap.get(idInt);
-        synchronized (curConnection) {
-            messageQueue.get(idInt).add(message);
+        lock.readLock().lock();
+        try {
+            int idInt;
+            idInt = Integer.parseInt(id);
+            integerConnectionMap.get(idInt).addMessage(message);
+        }finally {
+            lock.readLock().unlock();
         }
     }
 }

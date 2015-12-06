@@ -6,14 +6,15 @@ import java.util.concurrent.locks.ReentrantLock;
 
 public class SumTwoNumbersGame implements Game {
 
-    final private Random random = new Random();
+    ReentrantLock lock = new ReentrantLock(true);
+
+    private final Random random = new Random();
     private enum State {
         RUN, NOT_CONSTRUCTED
     }
 
     private int x;
     private int y;
-    final private ReentrantLock lock = new ReentrantLock();
     private State state = State.NOT_CONSTRUCTED;
     protected GameServer gameServer;
 
@@ -32,9 +33,11 @@ public class SumTwoNumbersGame implements Game {
 
     @Override
     public void onPlayerSentMsg(String id, String msg) {
+        System.out.print(id + " ");
         lock.lock();
-        while (state == State.NOT_CONSTRUCTED) {}
         try {
+            while (state == State.NOT_CONSTRUCTED) {
+            }
             int idInt;
             try {
                 idInt = Integer.parseInt(msg);

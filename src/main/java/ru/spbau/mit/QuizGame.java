@@ -4,8 +4,6 @@ package ru.spbau.mit;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.*;
-import java.util.concurrent.locks.ReentrantLock;
-
 
 public class QuizGame implements Game {
 
@@ -19,14 +17,14 @@ public class QuizGame implements Game {
     }
 
     private enum State {
-        NOT_RUN, RUN, NOT_CONSTRUCTED
+        NOT_RUN, RUN
     }
 
     final private ArrayList<QuizTask> listQuestions = new ArrayList<>();
-    final private ReentrantLock lock = new ReentrantLock();
 
     private Timer myTymer;
-    private State state = State.NOT_CONSTRUCTED;
+    private State state = State.NOT_RUN;
+    private String curQuestion;
     private String curAnswer;
     private GameServer gameServer;
     private int delay;
@@ -48,45 +46,31 @@ public class QuizGame implements Game {
         };
     }
 
-    private void sendNewLetter() {
+    private synchronized void sendNewLetter() {
         if (state == State.NOT_RUN) {
             return;
         }
-        lock.lock();
-        try {
-            if (curLetterNumber == maxCountLetter) {
-                gameServer.broadcast("Nobody guessed, the word was " + curAnswer);
-                myTymer.cancel();
-                state = State.NOT_RUN;
-                startGame();
+        if (curLetterNumber == maxCountLetter) {
+            gameServer.broadcast("Nobody guessed, the word was " + curAnswer);
+            myTymer.cancel();
+            state = State.NOT_RUN;
+            startGame();
 
-            } else {
-                gameServer.broadcast("Current prefix is " + curAnswer.substring(0, ++curLetterNumber));
-                TimerTask nextLetter = new TimerTask() {
-                    @Override
-                    public void run() {
-                        sendNewLetter();
-                    }
-                };
-                myTymer.schedule(createTaskNewLetter(), delay);
-            }
-        } finally {
-            lock.unlock();
+        } else {
+            gameServer.broadcast("Current prefix is " + curAnswer.substring(0, ++curLetterNumber));
+            myTymer.schedule(createTaskNewLetter(), delay);
         }
     }
 
     public void setDelayUntilNextLetter(int delay_) {
-        while (state == State.NOT_CONSTRUCTED) {}
         delay = delay_;
     }
 
     public void setMaxLettersToOpen(int maxCountLetter_) {
-        while (state == State.NOT_CONSTRUCTED) {}
         maxCountLetter = maxCountLetter_;
     }
 
     public void setDictionaryFilename(String dictionaryFilename) throws FileNotFoundException {
-        while (state == State.NOT_CONSTRUCTED) {}
         Scanner myfile = new Scanner(new File(dictionaryFilename));
         String curString;
         String[] arrayString;
@@ -100,42 +84,44 @@ public class QuizGame implements Game {
     private void startGame() {
         if (numberOfQuestion == listQuestions.size())
             numberOfQuestion = 0;
-        String curQuestion = listQuestions.get(numberOfQuestion).question;
+        curQuestion = listQuestions.get(numberOfQuestion).question;
         curAnswer = listQuestions.get(numberOfQuestion++).answer;
+        curLetterNumber = 0;
         gameServer.broadcast("New round started: " + curQuestion);
         myTymer = new Timer();
         myTymer.schedule(createTaskNewLetter(), delay);
     }
 
     @Override
-    public void onPlayerConnected(String id) {
+    public synchronized void onPlayerConnected(String id) {
+        if (state == State.RUN) {
+            gameServer.sendTo(id, curQuestion);
+            if (curLetterNumber != 0) {
+                gameServer.sendTo(id, curAnswer.substring(0, curLetterNumber));
+            }
+        }
     }
 
     @Override
-    public void onPlayerSentMsg(String id, String msg) {
-        lock.lock();
-        try {
-            if (state == State.NOT_RUN) {
-                if (msg.equals("!start")) {
+    public synchronized void onPlayerSentMsg(String id, String msg) {
+        if (state == State.NOT_RUN) {
+            if (msg.equals("!start")) {
+                startGame();
+                state = State.RUN;
+            }
+        } else if (state == State.RUN) {
+            if (msg.equals("!stop")) {
+                myTymer.cancel();
+                state = State.NOT_RUN;
+                gameServer.broadcast("Game has been stopped by " + id);
+            } else {
+                if (msg.equals(curAnswer)) {
+                    gameServer.broadcast("The winner is " + id);
                     startGame();
-                    state = State.RUN;
-                }
-            } else if (state == State.RUN) {
-                if (msg.equals("!stop")) {
-                    myTymer.cancel();
-                    state = State.NOT_RUN;
-                    gameServer.broadcast("Game has been stopped by " + id);
                 } else {
-                    if (msg.equals(curAnswer)) {
-                        gameServer.broadcast("The winner is " + id);
-                        startGame();
-                    } else {
-                        gameServer.sendTo(id, "Wrong try");
-                    }
+                    gameServer.sendTo(id, "Wrong try");
                 }
             }
-        } finally {
-            lock.unlock();
         }
     }
 }
